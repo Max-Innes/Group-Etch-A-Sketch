@@ -2,12 +2,12 @@ import machine
 import utime
 
 # assign/configure ADC pins for X and Y potentiometers
-adc_x = machine.ADC(26)  # ADC pin for X potentiometer (e.g., GPIO 26)
-adc_y = machine.ADC(27)  # ADC pin for Y potentiometer (e.g., GPIO 27)
+adc_x = machine.ADC(26)  # ADC pin for X potentiometer =(GPIO 26)
+adc_y = machine.ADC(27)  # ADC pin for Y potentiometer =(GPIO 27)
 
-# define a function to read ADC values and map them to servo angles 
+# define a function to read ADC values and map them to servo angles for us to use later on 
 def read_potentiometers():
-    # Read the raw ADC value (range 0-65535 for 16-bit)
+    # read the raw ADC value (range from 0-65535 for 16-bit)
     x_value = adc_x.read_u16()
     y_value = adc_y.read_u16()
     
@@ -19,7 +19,7 @@ def read_potentiometers():
 
 # main loop(while ture)
 while True:
-    # read the potentiometer values given and convert it into angles
+    # read the potentiometer values given by reader and convert it into angles
     x_angle, y_angle = read_potentiometers()
     
     # display/send angles to servos
