@@ -1,0 +1,28 @@
+#Necessary imputs and setup
+
+#Initialize servos
+servo1 = "knob1"
+servo2 = "knob2"
+
+# Set default position
+def move_to_start(): 
+    servo1.example_position
+    servo2.example_position
+
+#Ask for letter type + handle cases
+page_size = input("A4 or Letter?")
+
+#Define starting positions for A4 and Letter size 
+def move_to_start(page_size): 
+    if page_size == 'A4': 
+        #Set positions for A4 size (adjust as needed) 
+        servo1.example_position
+        servo2.example_position
+
+    elif page_size == 'Letter': # Set positions for Letter size (adjust as needed)
+        servo1.example_position
+        servo2.example_position
+
+    else:
+        print("Error: received invalid paper size")
+
