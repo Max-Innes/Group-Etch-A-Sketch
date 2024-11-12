@@ -1,0 +1,24 @@
+#Necessary imports
+from machine import Pin, ADC, PWM
+import time
+
+
+#Setting up PWM
+
+#Set up PWM outputs
+'''set to 0 and 1'''
+
+
+# Set PWM frequency
+'''frequencies for both set to 1000'''
+
+#Hardware interface
+# Set up ADC for the knobs. Also mapped to LEDs so knob 1 corresponds to LED1 (GP16) and knob 2 corresponds to LED2 (GP17)
+
+knob1 = ADC(Pin(27))
+knob2 = ADC(Pin(26))
+button = Pin(11, Pin.OUT)
+
+#Code for GP26 and GP27 can be found in II - Managing the reading of X and Y potentiometer inputs
+
+#Code for GP11 can be found in III - Implementing the pen's up/down control based on the switch input
