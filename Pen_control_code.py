@@ -17,8 +17,9 @@ def pen_control():
 def set_servo_angle(angle):
     '''Input: Angle in degrees (0 to 180)
        Output: Moves the servo to the specified angle'''
-    duty = int((angle / 180 * 1023) + 512)  # Convert angle to duty cycle
-    servo.duty_u16(duty)
+    pulse_width =  500 + (2500 - 500) * angle / 180 # Convert angle to duty cycle
+    duty = pulse_width / 20000
+    servo.duty_u16(int(duty * 65535))
 
 
 #function to set up the servo at an initial position.
@@ -32,12 +33,9 @@ output: return servo to initial position'''
 
 #function to read the current position
 def read_position(current_position):
-     return pen_position
-
-'''Input: read input to know the current position of the servo
-if current position is False(down) or True(up)'''
-    
+     return pen_position    
 '''output : returns boolean value -> the current position of the servo'''     
+
 #function to switch position
 def switch_position():
     if pen_position:
