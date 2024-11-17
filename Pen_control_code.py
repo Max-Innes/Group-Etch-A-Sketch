@@ -9,8 +9,17 @@ servo = None #will be initialized later on in the rest of the code
 # main is the main function that wil run the entire pen positioning program
 def pen_control():
     initialize_servo()
-    read_position()
-    switch_position()
+    while True: #loop to make sure that the program is running continously
+        read_position()
+        switch_position()
+        time.sleep(2)
+
+def set_servo_angle(angle):
+    '''Input: Angle in degrees (0 to 180)
+       Output: Moves the servo to the specified angle'''
+    duty = int((angle / 180 * 1023) + 512)  # Convert angle to duty cycle
+    servo.duty_u16(duty)
+
 
 #function to set up the servo at an initial position.
 def initialize_servo():  
@@ -28,8 +37,7 @@ def read_position(current_position):
 '''Input: read input to know the current position of the servo
 if current position is False(down) or True(up)'''
     
-'''output : returns boolean value -> the current position of the servo'''
-        
+'''output : returns boolean value -> the current position of the servo'''     
 #function to switch position
 def switch_position():
     if pen_position:
