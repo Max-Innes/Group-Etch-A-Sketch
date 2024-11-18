@@ -63,15 +63,26 @@ while True:
 
 #Neyssa you may need to make some changes with your code
 '''initializing variables'''
-#start with pen down as the default
+#start with pen down as the default (OR SHOULD IT BE UP RATHER?)
 pen_position = False
 servo = None #will be initialized later on in the rest of the code
 
-# main is the main function that wil run the entire pen positioning program
+# pen_control is the main function that wil run the entire pen positioning program
 def pen_control():
     initialize_servo()
-    read_position() 
-    switch_position() 
+    set_servo_angle()
+    while True: #loop to make sure that the program is running continously
+        read_position()
+        switch_position()
+        time.sleep(2)
+
+def set_servo_angle(angle):
+    '''Input: Angle in degrees (0 to 180)
+       Output: Moves the servo to the specified angle'''
+    pulse_width =  500 + (2500 - 500) * angle / 180 # Convert angle to duty cycle
+    duty = pulse_width / 20000
+    servo.duty_u16(int(duty * 65535))
+
 
 #function to set up the servo at an initial position.
 def initialize_servo():  
@@ -79,17 +90,11 @@ def initialize_servo():
     servo.freq(50)
     servo.set_servo_angle(0)
     print("Pen Servo initialized at position: Down")
-''' input: assign servo to a pin and assign initial position
-output: return servo to initial position'''
 
 #function to read the current position
 def read_position(current_position):
      return pen_position
-
-'''Input: read input to know the current position of the servo
-if current position is False(down) or True(up)'''
-    
-'''output : returns boolean value -> the current position of the servo'''
+# IDK IF WE REALLY NEED THIS
         
 #function to switch position
 def switch_position():
@@ -101,7 +106,7 @@ def switch_position():
         servo.set_servo_angle(90)
         pen_position = True
         print("Pen moved to position: Up")
-'''input : current position is read
-output : program switches current state to opposite state '''
+# current position is read
+# program switches current state to opposite state '''
 
-pen_control() #this runs the main program above
+pen_control() #this runs the pen_control program above

@@ -33,9 +33,9 @@ output: return servo to initial position'''
 
 #function to read the current position
 def read_position(current_position):
-     return pen_position    
+     return pen_position
+    
 '''output : returns boolean value -> the current position of the servo'''     
-
 #function to switch position
 def switch_position():
     if pen_position:
