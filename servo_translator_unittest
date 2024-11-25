@@ -5,8 +5,8 @@ from servo_translator import translate
 
 class TestServoTranslator(unittest.TestCase):
 	def setUp(self):
-		self._MIN = 1638
-		self._MAX = 8192
+		self._MIN = 2300
+		self._MAX = 7500
 			
 	def test_bounds(self):
 		"""Test that the output is within the bounds of the servo"""
