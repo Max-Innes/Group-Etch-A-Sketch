@@ -1,0 +1,25 @@
+#Necessary imports 
+from Neyssa's_code import a, b, c
+from Melissa's_code import d, e, f
+from James's_code import g, h, i
+from Group's_code import j, k, l
+import time
+import machine
+
+#Setup / variable initialization (Done)
+setup()
+
+#Page setup (Neyssa)
+page_setup()
+
+
+while True:
+    #Read incoming values (Done)
+    #Convert via inverse kinematics (James)
+    #Get pos + angle (James)
+    #Unittest to ensure it doesn't break (Done)
+    #Send command (Melissa)
+    #if emergency (Melissa)
+        #M18
+    sleep(x)
+
