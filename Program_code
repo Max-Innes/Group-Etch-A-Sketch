@@ -20,6 +20,6 @@ while True:
     #Unittest to ensure it doesn't break (Done)
     #Send command (Melissa)
     #if emergency (Melissa)
-        #M18
+        #Stop everything and move all servos to origin
     sleep(x)
 
