@@ -78,6 +78,7 @@ def pen_control():
             print("Moving servo to UP position (0°)")
             set_servo_angle(0)  # Pen up
             time.sleep(2)       # Wait for 2 seconds
+        else:
             button1.value() == 1
             print("Moving servo to DOWN position (90°)")
             set_servo_angle(90)  # Pen down
