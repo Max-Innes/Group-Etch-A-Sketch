@@ -19,10 +19,11 @@ pwm2.freq(1000)
 
 # function to set servo angles
 def set_servo_angle(angle):
-    '''Input: Angle in degrees (0 to 180)
-       Output: Moves the servo to the specified angle'''
-    pulse_width =  500 + (2500 - 500) * angle / 180 # Convert angle to duty cycle
-    duty = pulse_width / 20000
+	pulse_width = 500 + (2500-500) * angle / 180 #Pulse width equation
+	duty_cycle = pulse_width / 20000 # 20000 microseconds / 20ms
+	duty_u16_value = int(duty_cycle * 65535) #multiply so it is in the pwn class
+	duty_u16_value = max(2300, min(7500, duty_u16_value)) #Clamps down value
+	return duty_u16_value 
 
 #Main loop
 while True:
