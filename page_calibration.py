@@ -24,8 +24,8 @@ def move_pen(alpha: float, beta: float):
 
 # define the position
 # Target coordinates for the pen
-x, y = 9, 10  # Replace with the desired position on the page
-l1, l2 = 15, 10  # Lengths of the two arm links
+x, y = 9, 10  # Replace with the desired position on the page in cms
+l1, l2 = 13, 17  # Lengths of the two arm links
 
 try:
     # Calculate joint angles using the inverse kinematics above
