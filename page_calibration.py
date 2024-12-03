@@ -61,6 +61,20 @@ def draw_line(x1, y1, x2, y2, steps=10):
 # Draw a line from (5, 5) to (10, 10)
 draw_line(5, 5, 10, 10)
 
+# Function to calibrate the page
+def calibrate_page():
+    # Define the origin and other calibration points
+    origin_x, origin_y = 0, 0
+    calibration_points = [(0, 0), (10, 0), (0, 10), (10, 10)]
+    
+    for (x, y) in calibration_points:
+        try:
+            alpha, beta = inverse_kinematics(x, y, l1, l2)
+            move_pen(alpha, beta)
+            print(f"Calibrated point: (x={x}, y={y})")
+            time.sleep(1)  # Pause to ensure the pen has moved
+        except ValueError as e:
+            print(e)
 
 # I get the position from the inverse kinematiocs and then defining the position of the pen on the page. 
 # make sure that its where it needs to be.
