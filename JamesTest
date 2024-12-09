@@ -1,0 +1,181 @@
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
+from machine import PWM, Pin  # For Raspberry Pi Pico hardware control
+
+# ============================ Constants ============================
+# Lengths of the robotic arm segments (in millimeters)
+L1, L2 = 155, 155
+
+# Safe PWM bounds for servo motors
+PWM_MIN, PWM_MAX = 2300, 7500
+
+# ============================ Translate Function ============================
+def translate(angle: float) -> int:
+    """
+    Converts a given angle (in degrees) into a PWM value compatible with servo motors.
+    Ensures that the PWM signal is clamped within safe operational limits.
+
+    Args:
+        angle (float): Angle in degrees to convert.
+
+    Returns:
+        int: A 16-bit PWM duty cycle value.
+    """
+    # Calculate the pulse width based on the given angle
+    pulse_width = 500 + (2500 - 500) * angle / 180
+
+    # Convert pulse width to duty cycle (fraction of the PWM period)
+    duty_cycle = pulse_width / 20000  # Servo period = 20 ms (50 Hz frequency)
+
+    # Scale duty cycle to 16-bit resolution
+    duty_u16_value = int(duty_cycle * 65535)
+
+    # Clamp the PWM value to ensure it stays within safe limits
+    return max(PWM_MIN, min(PWM_MAX, duty_u16_value))
+
+# ============================ Inverse Kinematics ============================
+def inverse_kinematics(x, y):
+    """
+    Calculates the shoulder (q1) and elbow (q2) angles for a target (x, y) position.
+    Uses trigonometry to ensure the angles correspond to a physically reachable point.
+
+    Args:
+        x (float): X-coordinate of the target position.
+        y (float): Y-coordinate of the target position.
+
+    Returns:
+        tuple: (q1, q2) angles in radians.
+
+    Raises:
+        ValueError: If the target position is out of reach.
+    """
+    # Calculate the squared distance to the target point
+    r_squared = x**2 + y**2
+
+    # Check if the target point is within the arm's reachable range
+    if r_squared > (L1 + L2)**2 or r_squared < (L1 - L2)**2:
+        raise ValueError("Target out of reach")
+
+    # Calculate the elbow angle (q2) using the cosine rule
+    q2 = -math.acos((r_squared - L1**2 - L2**2) / (2 * L1 * L2))
+
+    # Calculate the shoulder angle (q1) using trigonometry
+    q1 = math.atan2(y, x) + math.atan2(L2 * math.sin(q2), L1 + L2 * math.cos(q2))
+
+    return q1, q2
+
+# ============================ Forward Kinematics ============================
+def forward_kinematics(q1, q2):
+    """
+    Computes the (x, y) position of the robotic arm's end effector based on joint angles.
+
+    Args:
+        q1 (float): Shoulder angle in radians.
+        q2 (float): Elbow angle in radians.
+
+    Returns:
+        tuple: (x1, y1, x2, y2) positions of the shoulder joint and end effector.
+    """
+    # Calculate the position of the shoulder joint
+    x1, y1 = L1 * math.cos(q1), L1 * math.sin(q1)
+
+    # Calculate the position of the end effector
+    x2, y2 = x1 + L2 * math.cos(q1 + q2), y1 + L2 * math.sin(q1 + q2)
+
+    return x1, y1, x2, y2
+
+# ============================ Safe Movement ============================
+def safe_move_to(x, y):
+    """
+    Safely moves the robotic arm to a specified target position (x, y).
+    Includes inverse kinematics, PWM translation, and error handling.
+
+    Args:
+        x (float): Target x-coordinate.
+        y (float): Target y-coordinate.
+    """
+    try:
+        # Calculate joint angles
+        q1, q2 = inverse_kinematics(x, y)
+
+        # Convert angles to PWM values
+        q1_pwm = translate(math.degrees(q1))
+        q2_pwm = translate(math.degrees(q2))
+
+        # Print movement details for debugging
+        print(f"Moving to ({x:.1f}, {y:.1f}) -> q1: {math.degrees(q1):.2f}°, q2: {math.degrees(q2):.2f}°")
+        print(f"PWM Signals -> Shoulder: {q1_pwm}, Elbow: {q2_pwm}")
+
+        # Send PWM signals to the servos
+        servo_shoulder.duty_u16(q1_pwm)
+        servo_elbow.duty_u16(q2_pwm)
+
+    except ValueError as e:
+        # Handle unreachable targets gracefully
+        print(f"Cannot move to ({x:.1f}, {y:.1f}): {e}")
+
+# ============================ Visualization ============================
+def plot_arm(q1, q2):
+    """
+    Plots the robotic arm's current position based on joint angles.
+
+    Args:
+        q1 (float): Shoulder angle in radians.
+        q2 (float): Elbow angle in radians.
+    """
+    # Clear the plot
+    ax.clear()
+
+    # Calculate positions of the joints and end effector
+    x1, y1, x2, y2 = forward_kinematics(q1, q2)
+
+    # Plot the arm
+    ax.plot([0, x1, x2], [0, y1, y2], 'o-', markersize=8, lw=3, label="Arm")
+    ax.scatter(x2, y2, c='red', s=100, label="End Effector")
+
+    # Set plot limits and labels
+    ax.set_xlim(-L1 - L2 - 10, L1 + L2 + 10)
+    ax.set_ylim(-L1 - L2 - 10, L1 + L2 + 10)
+    ax.set_aspect('equal', 'box')
+    ax.grid(True)
+
+    plt.draw()
+
+# ============================ Servo Initialization ============================
+# Initialize the PWM signals for the shoulder and elbow servos
+servo_shoulder = PWM(Pin(0))  # Replace with actual GPIO pin for shoulder
+servo_elbow = PWM(Pin(1))     # Replace with actual GPIO pin for elbow
+servo_shoulder.freq(50)       # Set servo frequency to 50 Hz
+servo_elbow.freq(50)
+
+# ============================ GUI with Sliders ============================
+# Create a plot for visualization
+fig, ax = plt.subplots(figsize=(8, 8))
+plt.subplots_adjust(bottom=0.3)
+
+# Add sliders for controlling target (x, y) position
+ax_x = plt.axes([0.2, 0.2, 0.65, 0.03])
+ax_y = plt.axes([0.2, 0.15, 0.65, 0.03])
+slider_x = Slider(ax_x, 'X', -L1 - L2, L1 + L2, valinit=100)
+slider_y = Slider(ax_y, 'Y', -L1 - L2, L1 + L2, valinit=100)
+
+def update(val):
+    """
+    Callback function for sliders to update the arm's position and visualization.
+    """
+    x, y = slider_x.val, slider_y.val
+    try:
+        q1, q2 = inverse_kinematics(x, y)
+        plot_arm(q1, q2)
+        safe_move_to(x, y)
+    except ValueError:
+        print("Target out of reach")
+
+# Attach slider update events
+slider_x.on_changed(update)
+slider_y.on_changed(update)
+
+# Display the plot
+plt.show()
