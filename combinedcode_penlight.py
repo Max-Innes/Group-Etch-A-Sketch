@@ -78,7 +78,7 @@ def initialize_servo():
 
 def pen_control():
     initialize_servo()
-    set_servo_angle()
+
     while True: #loop to make sure that the program is running continously
         read_position()
         switch_position()
