@@ -67,11 +67,19 @@ while True:
     time.sleep(0.3)
 
 
-
    # logical order : is button pressed ? change the state if up turn light on, if down turn the light off, wait 3sec then start again
     # Set up button and light for pen control
 button = Pin(15, Pin.IN, Pin.PULL_DOWN)  # Bouton connecté à GPIO 15
 light = Pin(2, Pin.OUT)  # Lumière connectée à GPIO 2
+def switch_position():
+    if pen_position:
+        servo.set_servo_angle(0)
+        pen_position = False
+        print("Pen moved to position: Down")
+    else:
+        servo.set_servo_angle(90)
+        pen_position = True
+        print("Pen moved to position: Up")
 
 # Pen control function
 def pen_control():
@@ -95,16 +103,3 @@ while True:
 # Configuration du bouton d'urgence et des éléments à contrôler
 
 
-
-
-def switch_position():
-    if pen_position:
-        servo.set_servo_angle(0)
-        pen_position = False
-        print("Pen moved to position: Down")
-    else:
-        servo.set_servo_angle(90)
-        pen_position = True
-        print("Pen moved to position: Up")
-'''input : current position is read
-output : program switches current state to opposite state '''
