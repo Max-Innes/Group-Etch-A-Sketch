@@ -14,22 +14,56 @@ pwm2 = PWM(Pin(1))
 pwm1.freq(1000) #maximum
 pwm2.freq(1000)
 
+# Set up the pen control
+pen_up = 2300
+pen_down = 3000
 
 #Main loop 
+
 while True:
     # Read knob values
     try:
-        knob1_value = knob1.read_u16() #pwm pin 
+        knob1_value = knob1.read_u16()
         knob2_value = knob2.read_u16()
-        knob1_angle = int((knob1_value / 65535) * 180)
-        knob2_angle = int((knob2_value / 65535) * 180)
-        # display/send angles to servos
-        print(f"X Angle: {knob1_angle}, Y Angle: {knob2_angle}")
-        print(f"X Value: {knob1_value}, Y Angle: {knob2_value}")
-        time.sleep(0.1)
     except:
         print("Error: Could not read values")
 
+    # Map knob values to PWM duty cycle (0-65535)
+    pwm1.duty_u16(knob1_value)
+    pwm2.duty_u16(knob2_value)
+
+    #For testing purposes, prints the result
+    print(knob1_value)
+    print(knob2_value)
+
+    time.sleep(1) 
+
+# assign/configure ADC pins for X and Y potentiometers
+knob1 = machine.ADC(26)  # ADC pin for X potentiometer =(GPIO 26)
+knob2 = machine.ADC(27)  # ADC pin for Y potentiometer =(GPIO 27)
+
+# define a function to read ADC values and map them to servo angles for us to use later on 
+def read_potentiometers():
+    # read the raw ADC value (range from 0-65535 for 16-bit)
+    knob1_value = knob1.read_u16()
+    knob2_value = knob2.read_u16()
+    
+    # map the raw values to a servo angle to hit all 0 to 180 degrees
+    knob1_angle = int((knob1_value / 65535) * 180)
+    knob2_angle = int((knob2_value / 65535) * 180)
+    
+    return knob1_angle, knob2_angle
+
+# main loop(while ture)
+while True:
+    # read the potentiometer values given by reader and convert it into angles
+    knob1_angle, knob2_angle = read_potentiometers()
+    
+    # display/send angles to servos
+    print(f"X Angle: {knob1_angle}, Y Angle: {knob2_angle}")
+    
+    # delay for some stability
+    time.sleep(0.3)
 
 #start with pen down as the default 
 try:
@@ -69,11 +103,11 @@ def read_position(current_position):
 #function to switch position
 def switch_position():
     if pen_position:
-        servo.set_servo_angle(0)
+        pen_position.set_servo_angle(0)
         pen_position = False
         print("Pen moved to position: Down")
     else:
-        servo.set_servo_angle(90)
+        pen_servo.set_servo_angle(90)
         pen_position = True
         print("Pen moved to position: Up")
 # current position is read
